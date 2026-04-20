@@ -196,6 +196,7 @@ html, body { min-height: 100%; background: var(--surface-2); color: var(--text);
         <span id="stat-total">0</span>
         <span>done</span>
       </div>
+      <button class="eod-btn" id="copy-btn" onclick="copyList()">Copy list</button>
       <button class="eod-btn" onclick="openEOD()">End of day →</button>
     </div>
   </div>
@@ -653,6 +654,71 @@ function confirmEOD() {
 }
 
 function closeEOD() { document.getElementById('overlay').classList.remove('open'); }
+
+// ── COPY LIST ─────────────────────────────────────────────────────────────────
+
+function copyList() {
+  const sectionEmoji = {
+    urgent:    '🟥 URGENT',
+    high:      '🟠 HIGH PRIORITY',
+    medium:    '🟡 MEDIUM PRIORITY',
+    watch:     '🔵 STRATEGIC WATCH',
+    strategic: '🟢 STRATEGIC / ONGOING',
+    followup:  '📋 FOLLOW UP NEEDED',
+    questions: '❓ OPEN QUESTIONS',
+  };
+
+  let output = `🗂️ MASTER ACTION LIST — Liz / AR @ FMG Suite\nLast updated: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}\n\n`;
+
+  SECTIONS.forEach(sec => {
+    const items = state.actions.filter(a => a.section === sec.id);
+    if (!items.length) return;
+
+    output += sectionEmoji[sec.id] + '\n\n';
+
+    if (sec.id === 'questions') {
+      // Ungrouped first
+      items.filter(a => !a.group).forEach(a => {
+        output += `- ${a.text}${a.carried ? ' [carried]' : ''}\n`;
+      });
+      // Grouped
+      const groups = {};
+      items.filter(a => a.group).forEach(a => {
+        if (!groups[a.group]) groups[a.group] = [];
+        groups[a.group].push(a);
+      });
+      Object.entries(groups).forEach(([group, groupItems]) => {
+        output += `\n${group}:\n`;
+        groupItems.forEach(a => { output += `- ${a.text}\n`; });
+      });
+    } else {
+      items.forEach(a => {
+        output += `- ${a.text}${a.carried ? ' [carried]' : ''}\n`;
+      });
+    }
+
+    output += '\n';
+  });
+
+  // Completed
+  if (state.completed.length) {
+    output += '✅ RECENTLY COMPLETED\n\n';
+    state.completed.forEach(a => { output += `- ${a.text}\n`; });
+  }
+
+  navigator.clipboard.writeText(output.trim()).then(() => {
+    const btn = document.getElementById('copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  });
+}
 
 load();
 </script>
