@@ -5,539 +5,183 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Morning Check-In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --orange: #E9A226; --orange-dim: rgba(233,162,38,0.1); --orange-border: rgba(233,162,38,0.28);
+  --green: #32CD8D; --green-dim: rgba(50,205,141,0.1);
+  --red: #E54417; --red-dim: rgba(229,68,23,0.1);
+  --blue: #1F35E6; --blue-dim: rgba(31,53,230,0.08);
+  --surface: #fff; --surface-2: #f7f7f6; --surface-3: #f0f0ef;
+  --border: rgba(0,0,0,0.07); --border-med: rgba(0,0,0,0.12);
+  --text: #0d0d0d; --text-2: #555; --text-3: #888;
+  --radius: 10px; --radius-sm: 6px;
+}
+@media (prefers-color-scheme: dark) {
   :root {
-    --orange: #E9A226;
-    --orange-dim: rgba(233,162,38,0.1);
-    --orange-border: rgba(233,162,38,0.25);
-    --green: #32CD8D;
-    --green-dim: rgba(50,205,141,0.1);
-    --red: #E54417;
-    --red-dim: rgba(229,68,23,0.1);
-    --surface: #ffffff;
-    --surface-2: #f7f7f6;
-    --surface-3: #f0f0ef;
-    --border: rgba(0,0,0,0.08);
-    --border-med: rgba(0,0,0,0.13);
-    --text: #0d0d0d;
-    --text-2: #555555;
-    --text-3: #878787;
-    --radius: 10px;
-    --radius-sm: 6px;
+    --surface: #141414; --surface-2: #1c1c1c; --surface-3: #242424;
+    --border: rgba(255,255,255,0.07); --border-med: rgba(255,255,255,0.12);
+    --text: #f0f0ee; --text-2: #a0a09c; --text-3: #606060;
   }
+}
+html, body { min-height: 100%; background: var(--surface-2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.app { max-width: 740px; margin: 0 auto; padding: 0 20px 80px; }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --surface: #141414;
-      --surface-2: #1c1c1c;
-      --surface-3: #242424;
-      --border: rgba(255,255,255,0.07);
-      --border-med: rgba(255,255,255,0.13);
-      --text: #f0f0ee;
-      --text-2: #a0a09c;
-      --text-3: #606060;
-    }
-  }
+/* Header */
+.header { display: flex; align-items: center; justify-content: space-between; padding: 26px 0 18px; border-bottom: 0.5px solid var(--border-med); margin-bottom: 20px; }
+.header h1 { font-size: 19px; font-weight: 500; letter-spacing: -0.4px; }
+.header-date { font-size: 12px; color: var(--text-3); font-family: 'DM Mono', monospace; margin-top: 3px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.stats { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-3); display: flex; align-items: center; gap: 4px; }
+.stat-done { color: var(--green); font-weight: 500; }
+.hdr-btn { font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif; color: var(--text-2); background: var(--surface); border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); padding: 7px 14px; cursor: pointer; transition: all 0.15s; }
+.hdr-btn:hover { border-color: var(--orange); color: var(--orange); }
 
-  html, body {
-    min-height: 100%;
-    background: var(--surface-2);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
+/* Tabs */
+.tabs { display: flex; gap: 2px; margin-bottom: 18px; border-bottom: 0.5px solid var(--border-med); }
+.tab { font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; color: var(--text-3); background: none; border: none; border-bottom: 2px solid transparent; padding: 8px 16px 10px; cursor: pointer; transition: all 0.15s; margin-bottom: -0.5px; }
+.tab:hover { color: var(--text-2); }
+.tab.active { color: var(--text); border-bottom-color: var(--orange); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
-  .app {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 0 20px 80px;
-  }
+/* Import */
+.import-card { background: var(--surface); border: 0.5px solid var(--border-med); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; }
+.import-header { background: #0d0d0d; padding: 11px 16px; display: flex; align-items: center; gap: 8px; }
+.import-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
+.import-title { font-size: 11px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+.import-body { padding: 12px 14px; display: flex; gap: 10px; align-items: flex-end; }
+.import-textarea { flex: 1; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--surface-2); border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); padding: 9px 11px; color: var(--text); resize: none; height: 80px; outline: none; line-height: 1.55; transition: border-color 0.15s; }
+.import-textarea:focus { border-color: var(--orange); }
+.import-textarea::placeholder { color: var(--text-3); }
+.import-btn { font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; color: #0d0d0d; background: var(--orange); border: none; border-radius: var(--radius-sm); padding: 9px 16px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+.import-btn:hover { background: #d4911f; }
+.import-btn:active { transform: scale(0.97); }
 
-  /* Header */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 28px 0 20px;
-    border-bottom: 0.5px solid var(--border-med);
-    margin-bottom: 24px;
-  }
+/* Add row */
+.add-row { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+.add-input { flex: 1; min-width: 160px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--surface); border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); padding: 9px 12px; color: var(--text); outline: none; transition: border-color 0.15s; }
+.add-input:focus { border-color: var(--orange); }
+.add-input::placeholder { color: var(--text-3); }
+.add-date { font-size: 12px; font-family: 'DM Mono', monospace; background: var(--surface); border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); padding: 9px 8px; color: var(--text-2); cursor: pointer; outline: none; width: 130px; }
+.priority-select { font-size: 12px; font-family: 'DM Mono', monospace; background: var(--surface); border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); padding: 9px 8px; color: var(--text-2); cursor: pointer; outline: none; width: 100px; }
+.add-btn { font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; color: var(--surface); background: #0d0d0d; border: none; border-radius: var(--radius-sm); padding: 9px 16px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.add-btn:hover { background: #333; }
+.add-btn:active { transform: scale(0.97); }
 
-  .header h1 {
-    font-size: 19px;
-    font-weight: 500;
-    letter-spacing: -0.4px;
-    color: var(--text);
-  }
+/* Sections */
+.section { margin-bottom: 18px; }
+.section-header { display: flex; align-items: center; gap: 10px; padding: 0 0 7px; border-bottom: 0.5px solid var(--border-med); margin-bottom: 6px; }
+.section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
+.section-count { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text-3); background: var(--surface-3); border-radius: 3px; padding: 1px 5px; }
+.sort-due-btn { font-size: 10px; font-weight: 500; font-family: 'DM Sans', sans-serif; color: var(--text-3); background: none; border: 0.5px solid var(--border); border-radius: 3px; padding: 2px 7px; cursor: pointer; margin-left: auto; transition: all 0.15s; }
+.sort-due-btn:hover { border-color: var(--orange); color: var(--orange); }
+.sort-due-btn.active { border-color: var(--orange); color: var(--orange); background: var(--orange-dim); }
+.section-stripe { width: 10px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+.s-urgent .section-stripe { background: var(--red); }
+.s-high .section-stripe { background: var(--orange); }
+.s-medium .section-stripe { background: #E6C07F; }
+.s-watch .section-stripe { background: var(--blue); }
+.s-strategic .section-stripe { background: var(--green); }
+.s-followup .section-stripe { background: var(--text-3); }
+.s-questions .section-stripe { background: var(--text-3); }
 
-  .header-date {
-    font-size: 12px;
-    color: var(--text-3);
-    font-family: 'DM Mono', monospace;
-    margin-top: 3px;
-  }
+/* Action items */
+.action-list { display: flex; flex-direction: column; gap: 2px; }
+.action-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); border-left-width: 2px; transition: border-color 0.15s, opacity 0.15s; position: relative; }
+.action-item:hover { border-color: var(--border-med); }
+.action-item.carried { background: var(--surface-3); }
+.action-item.drag-over { border-top: 2px solid var(--orange); }
+.action-item.dragging { opacity: 0.4; }
+.s-urgent .action-item { border-left-color: var(--red); }
+.s-high .action-item { border-left-color: var(--orange); }
+.s-medium .action-item { border-left-color: #E6C07F; }
+.s-watch .action-item { border-left-color: var(--blue); }
+.s-strategic .action-item { border-left-color: var(--green); }
+.s-followup .action-item { border-left-color: var(--text-3); }
+.s-questions .action-item { border-left-color: var(--text-3); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+/* Drag handle */
+.drag-handle { display: flex; align-items: center; cursor: grab; color: var(--text-3); opacity: 0; transition: opacity 0.15s; flex-shrink: 0; margin-top: 2px; padding: 0 2px; }
+.drag-handle:active { cursor: grabbing; }
+.action-item:hover .drag-handle { opacity: 1; }
+.drag-handle svg { display: block; }
 
-  .stats {
-    font-size: 12px;
-    font-family: 'DM Mono', monospace;
-    color: var(--text-3);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .stat-done { color: var(--green); font-weight: 500; }
+.check-wrap { width: 17px; height: 17px; border: 1px solid var(--border-med); border-radius: 4px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.15s; background: transparent; }
+.check-wrap:hover { border-color: var(--orange); }
+.check-wrap.checked { background: var(--orange); border-color: var(--orange); }
+.check-wrap svg { display: none; }
+.check-wrap.checked svg { display: block; }
 
-  .eod-btn {
-    font-size: 12px;
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text-2);
-    background: var(--surface);
-    border: 0.5px solid var(--border-med);
-    border-radius: var(--radius-sm);
-    padding: 7px 14px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .eod-btn:hover { border-color: var(--orange); color: var(--orange); }
+.action-content { flex: 1; min-width: 0; }
+.action-text { font-size: 13px; color: var(--text); line-height: 1.45; }
+.action-item.done .action-text { text-decoration: line-through; color: var(--text-3); }
 
-  /* Import card */
-  .import-card {
-    background: var(--surface);
-    border: 0.5px solid var(--border-med);
-    border-radius: var(--radius);
-    margin-bottom: 20px;
-    overflow: hidden;
-  }
+.action-meta { display: flex; align-items: center; gap: 7px; margin-top: 3px; flex-wrap: wrap; }
+.meta-source { font-size: 11px; color: var(--text-3); font-family: 'DM Mono', monospace; }
+.carried-tag { font-size: 10px; font-weight: 500; color: var(--text-3); background: var(--surface-3); border: 0.5px solid var(--border-med); border-radius: 3px; padding: 1px 5px; }
 
-  .import-header {
-    background: #0d0d0d;
-    padding: 11px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+/* Due date badge */
+.due-badge { font-size: 10px; font-weight: 500; font-family: 'DM Mono', monospace; border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
+.due-future { background: var(--surface-3); color: var(--text-3); }
+.due-today { background: var(--orange-dim); color: var(--orange); border: 0.5px solid var(--orange-border); }
+.due-overdue { background: var(--red-dim); color: var(--red); }
 
-  .import-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--orange);
-    flex-shrink: 0;
-  }
+.action-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s; margin-top: 1px; }
+.action-item:hover .action-right { opacity: 1; }
 
-  .import-title {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.55);
-  }
+/* Inline date input on items */
+.date-edit { font-size: 11px; font-family: 'DM Mono', monospace; background: var(--surface-2); border: 0.5px solid var(--border-med); border-radius: 3px; padding: 2px 5px; color: var(--text-2); cursor: pointer; outline: none; width: 110px; }
+.date-edit:focus { border-color: var(--orange); }
 
-  .import-body {
-    padding: 14px 16px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-  }
+.del-btn { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 16px; padding: 0; line-height: 1; transition: color 0.15s; }
+.del-btn:hover { color: var(--red); }
 
-  .import-textarea {
-    flex: 1;
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    background: var(--surface-2);
-    border: 0.5px solid var(--border-med);
-    border-radius: var(--radius-sm);
-    padding: 10px 12px;
-    color: var(--text);
-    resize: none;
-    height: 90px;
-    outline: none;
-    line-height: 1.55;
-    transition: border-color 0.15s;
-  }
-  .import-textarea:focus { border-color: var(--orange); }
-  .import-textarea::placeholder { color: var(--text-3); line-height: 1.6; }
+/* Groups (open questions) */
+.question-group { margin-bottom: 8px; }
+.group-label { font-size: 11px; font-weight: 500; color: var(--text-2); padding: 6px 12px 5px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: var(--radius-sm) var(--radius-sm) 0 0; border-bottom: none; }
+.group-items { border: 0.5px solid var(--border); border-radius: 0 0 var(--radius-sm) var(--radius-sm); overflow: hidden; }
+.group-items .action-item { border-radius: 0; border-left-width: 2px; }
+.group-items .action-item:not(:last-child) { border-bottom: none; }
 
-  .import-btn {
-    font-size: 13px;
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    color: #0d0d0d;
-    background: var(--orange);
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 10px 18px;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-    flex-shrink: 0;
-    align-self: flex-end;
-  }
-  .import-btn:hover { background: #d4911f; }
-  .import-btn:active { transform: scale(0.97); }
+.empty-section { font-size: 12px; color: var(--text-3); padding: 10px 12px; font-style: italic; }
 
-  /* Section labels */
-  .section-label {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin: 20px 0 8px 2px;
-  }
+/* Completed tab */
+.completed-list { display: flex; flex-direction: column; gap: 2px; }
+.completed-item { padding: 9px 12px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); border-left: 2px solid var(--green); }
+.completed-text { font-size: 13px; color: var(--text-3); text-decoration: line-through; line-height: 1.45; }
+.completed-meta { font-size: 11px; color: var(--text-3); font-family: 'DM Mono', monospace; margin-top: 3px; }
+.completed-empty { text-align: center; padding: 40px 20px; color: var(--text-3); font-size: 13px; border: 0.5px dashed var(--border-med); border-radius: var(--radius); }
+.completed-empty strong { display: block; font-size: 14px; font-weight: 500; color: var(--text-2); margin-bottom: 5px; }
 
-  /* Action items */
-  .action-list { display: flex; flex-direction: column; gap: 2px; }
-
-  .action-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 11px 14px;
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    border-left-width: 2px;
-    transition: border-color 0.15s;
-    animation: fadeIn 0.18s ease;
-    position: relative;
-  }
-  .action-item:hover { border-color: var(--border-med); }
-  .action-item.p1 { border-left-color: var(--red); }
-  .action-item.p2 { border-left-color: var(--orange); }
-  .action-item.p3 { border-left-color: var(--text-3); }
-  .action-item.carried { background: var(--surface-3); }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .check-wrap {
-    width: 18px;
-    height: 18px;
-    border: 1px solid var(--border-med);
-    border-radius: 4px;
-    flex-shrink: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 1px;
-    transition: all 0.15s;
-    background: transparent;
-  }
-  .check-wrap:hover { border-color: var(--orange); }
-  .check-wrap.checked { background: var(--orange); border-color: var(--orange); }
-  .check-wrap svg { display: none; }
-  .check-wrap.checked svg { display: block; }
-
-  .action-content { flex: 1; min-width: 0; }
-
-  .action-text {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.45;
-  }
-  .action-item.done .action-text {
-    text-decoration: line-through;
-    color: var(--text-3);
-  }
-
-  .action-meta {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-top: 3px;
-    flex-wrap: wrap;
-  }
-
-  .meta-source {
-    font-size: 11px;
-    color: var(--text-3);
-    font-family: 'DM Mono', monospace;
-  }
-
-  .carried-tag {
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--text-3);
-    background: var(--surface-3);
-    border: 0.5px solid var(--border-med);
-    border-radius: 3px;
-    padding: 1px 5px;
-    letter-spacing: 0.04em;
-  }
-
-  .action-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-    opacity: 0;
-    transition: opacity 0.15s;
-    margin-top: 1px;
-  }
-  .action-item:hover .action-right { opacity: 1; }
-
-  .pip {
-    font-size: 10px;
-    font-weight: 500;
-    font-family: 'DM Mono', monospace;
-    padding: 2px 6px;
-    border-radius: 3px;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    border: none;
-    transition: all 0.15s;
-  }
-  .pip.p1 { background: var(--red-dim); color: var(--red); }
-  .pip.p2 { background: var(--orange-dim); color: var(--orange); }
-  .pip.p3 { background: var(--surface-3); color: var(--text-3); }
-
-  .del-btn {
-    background: none;
-    border: none;
-    color: var(--text-3);
-    cursor: pointer;
-    font-size: 16px;
-    padding: 0;
-    line-height: 1;
-    transition: color 0.15s;
-  }
-  .del-btn:hover { color: var(--red); }
-
-  /* Add row */
-  .add-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    align-items: center;
-  }
-
-  .add-input {
-    flex: 1;
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    background: var(--surface);
-    border: 0.5px solid var(--border-med);
-    border-radius: var(--radius-sm);
-    padding: 9px 12px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .add-input:focus { border-color: var(--orange); }
-  .add-input::placeholder { color: var(--text-3); }
-
-  .priority-select {
-    font-size: 12px;
-    font-family: 'DM Mono', monospace;
-    background: var(--surface);
-    border: 0.5px solid var(--border-med);
-    border-radius: var(--radius-sm);
-    padding: 9px 8px;
-    color: var(--text-2);
-    cursor: pointer;
-    outline: none;
-    width: 88px;
-  }
-
-  .add-btn {
-    font-size: 13px;
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--surface);
-    background: #0d0d0d;
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 9px 16px;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .add-btn:hover { background: #333; }
-  .add-btn:active { transform: scale(0.97); }
-
-  /* Empty state */
-  .empty-list {
-    text-align: center;
-    padding: 36px 20px;
-    color: var(--text-3);
-    font-size: 13px;
-    border: 0.5px dashed var(--border-med);
-    border-radius: var(--radius);
-  }
-  .empty-list strong {
-    display: block;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-2);
-    margin-bottom: 5px;
-  }
-
-  /* EOD overlay */
-  .overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .overlay.open { display: flex; }
-
-  .modal {
-    background: var(--surface);
-    border: 0.5px solid var(--border-med);
-    border-radius: 14px;
-    width: 100%;
-    max-width: 540px;
-    overflow: hidden;
-    animation: modalIn 0.18s ease;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.96) translateY(10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .modal-header {
-    background: #0d0d0d;
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
-
-  .modal-title {
-    font-size: 13px;
-    font-weight: 500;
-    color: #ffffff;
-    letter-spacing: -0.2px;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: rgba(255,255,255,0.45);
-    font-size: 18px;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-    transition: color 0.15s;
-  }
-  .close-btn:hover { color: white; }
-
-  .modal-body {
-    padding: 20px;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  .modal-section-label {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin-bottom: 10px;
-  }
-
-  .eod-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 12px;
-    background: var(--surface-2);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    margin-bottom: 5px;
-  }
-
-  .eod-item-text { flex: 1; font-size: 13px; color: var(--text); line-height: 1.4; }
-
-  .choice-wrap { display: flex; gap: 4px; flex-shrink: 0; }
-
-  .choice-btn {
-    font-size: 11px;
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    border: 0.5px solid var(--border-med);
-    border-radius: 4px;
-    padding: 3px 9px;
-    cursor: pointer;
-    background: var(--surface);
-    color: var(--text-2);
-    transition: all 0.15s;
-  }
-  .choice-carry.active { background: var(--orange-dim); border-color: var(--orange); color: var(--orange); }
-  .choice-drop.active  { background: var(--red-dim); border-color: var(--red); color: var(--red); }
-
-  .modal-footer {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    padding: 16px 20px;
-    border-top: 0.5px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  .btn-cancel {
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text-2);
-    background: var(--surface-2);
-    border: 0.5px solid var(--border-med);
-    border-radius: var(--radius-sm);
-    padding: 9px 16px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .btn-confirm {
-    font-size: 13px;
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    color: #0d0d0d;
-    background: var(--orange);
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 9px 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-confirm:hover { background: #d4911f; }
-
-  .all-done-msg {
-    font-size: 13px;
-    color: var(--text-3);
-    padding: 16px 0 8px;
-    text-align: center;
-  }
+/* EOD overlay */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+.overlay.open { display: flex; }
+.modal { background: var(--surface); border: 0.5px solid var(--border-med); border-radius: 14px; width: 100%; max-width: 540px; overflow: hidden; animation: modalIn 0.18s ease; max-height: 85vh; display: flex; flex-direction: column; }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-header { background: #0d0d0d; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.modal-title { font-size: 13px; font-weight: 500; color: #fff; letter-spacing: -0.2px; }
+.close-btn { background: none; border: none; color: rgba(255,255,255,0.45); font-size: 18px; cursor: pointer; line-height: 1; padding: 0; transition: color 0.15s; }
+.close-btn:hover { color: white; }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 10px; }
+.eod-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 5px; }
+.eod-item-text { flex: 1; font-size: 13px; color: var(--text); line-height: 1.4; }
+.choice-wrap { display: flex; gap: 4px; flex-shrink: 0; }
+.choice-btn { font-size: 11px; font-weight: 500; font-family: 'DM Sans', sans-serif; border: 0.5px solid var(--border-med); border-radius: 4px; padding: 3px 9px; cursor: pointer; background: var(--surface); color: var(--text-2); transition: all 0.15s; }
+.choice-carry.active { background: var(--orange-dim); border-color: var(--orange); color: var(--orange); }
+.choice-drop.active { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 20px; border-top: 0.5px solid var(--border); flex-shrink: 0; }
+.btn-cancel { font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--text-2); background: var(--surface-2); border: 0.5px solid var(--border-med); border-radius: var(--radius-sm); padding: 9px 16px; cursor: pointer; }
+.btn-confirm { font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; color: #0d0d0d; background: var(--orange); border: none; border-radius: var(--radius-sm); padding: 9px 20px; cursor: pointer; transition: all 0.15s; }
+.btn-confirm:hover { background: #d4911f; }
+.all-done-msg { font-size: 13px; color: var(--text-3); padding: 16px 0 8px; text-align: center; }
 </style>
 </head>
 <body>
 <div class="app">
-
   <div class="header">
     <div>
       <h1>Morning check-in</h1>
@@ -545,57 +189,77 @@
     </div>
     <div class="header-right">
       <div class="stats">
-        <span class="stat-done" id="stat-done">0</span>
-        <span>/</span>
-        <span id="stat-total">0</span>
-        <span>done</span>
+        <span class="stat-done" id="stat-done">0</span><span>/</span><span id="stat-total">0</span><span>done</span>
       </div>
-      <button class="eod-btn" onclick="openEOD()">End of day →</button>
+      <button class="hdr-btn" id="copy-btn" onclick="copyList()">Copy list</button>
+      <button class="hdr-btn" onclick="openEOD()">End of day →</button>
     </div>
   </div>
 
-  <div class="import-card">
-    <div class="import-header">
-      <div class="import-dot"></div>
-      <span class="import-title">Paste morning output from Claude</span>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('active',this)">Active</button>
+    <button class="tab" onclick="switchTab('completed',this)">Completed</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-active">
+    <div class="import-card">
+      <div class="import-header"><div class="import-dot"></div><span class="import-title">Paste master to-do list from Claude</span></div>
+      <div class="import-body">
+        <textarea class="import-textarea" id="import-textarea" placeholder="Paste your master to-do list here. Sections like 🟥 URGENT, 🟠 HIGH PRIORITY, ✅ RECENTLY COMPLETED etc. will be parsed automatically."></textarea>
+        <button class="import-btn" onclick="importList()">Import →</button>
+      </div>
     </div>
-    <div class="import-body">
-      <textarea
-        class="import-textarea"
-        id="import-textarea"
-        placeholder="Paste your master to-do list here. Each line becomes a checklist item. Lines with words like 'urgent', 'ASAP', or 'blocker' get flagged P1 automatically."
-      ></textarea>
-      <button class="import-btn" onclick="importList()">Import →</button>
+
+    <div class="add-row">
+      <input class="add-input" id="add-input" type="text" placeholder="Add something that just came up..." onkeydown="if(event.key==='Enter')addManual()">
+      <input class="add-date" id="add-date" type="date">
+      <select class="priority-select" id="add-priority">
+        <option value="urgent">Urgent</option>
+        <option value="high" selected>High priority</option>
+        <option value="medium">Medium</option>
+        <option value="followup">Follow up</option>
+        <option value="watch">Strategic watch</option>
+      </select>
+      <button class="add-btn" onclick="addManual()">+ Add</button>
+    </div>
+
+    <div class="section s-urgent">
+      <div class="section-header"><div class="section-stripe"></div><span class="section-label">Urgent</span><span class="section-count" id="count-urgent">0</span><button class="sort-due-btn" id="sort-urgent" onclick="toggleSort('urgent',this)">Sort by due</button></div>
+      <div class="action-list" id="list-urgent"><div class="empty-section">Nothing urgent</div></div>
+    </div>
+    <div class="section s-high">
+      <div class="section-header"><div class="section-stripe"></div><span class="section-label">High Priority</span><span class="section-count" id="count-high">0</span><button class="sort-due-btn" id="sort-high" onclick="toggleSort('high',this)">Sort by due</button></div>
+      <div class="action-list" id="list-high"><div class="empty-section">Nothing here</div></div>
+    </div>
+    <div class="section s-medium">
+      <div class="section-header"><div class="section-stripe"></div><span class="section-label">Medium Priority</span><span class="section-count" id="count-medium">0</span><button class="sort-due-btn" id="sort-medium" onclick="toggleSort('medium',this)">Sort by due</button></div>
+      <div class="action-list" id="list-medium"><div class="empty-section">Nothing here</div></div>
+    </div>
+    <div class="section s-watch">
+      <div class="section-header"><div class="section-stripe"></div><span class="section-label">Strategic Watch</span><span class="section-count" id="count-watch">0</span><button class="sort-due-btn" id="sort-watch" onclick="toggleSort('watch',this)">Sort by due</button></div>
+      <div class="action-list" id="list-watch"><div class="empty-section">Nothing here</div></div>
+    </div>
+    <div class="section s-strategic">
+      <div class="section-header"><div class="section-stripe"></div><span class="section-label">Strategic / Ongoing</span><span class="section-count" id="count-strategic">0</span><button class="sort-due-btn" id="sort-strategic" onclick="toggleSort('strategic',this)">Sort by due</button></div>
+      <div class="action-list" id="list-strategic"><div class="empty-section">Nothing here</div></div>
+    </div>
+    <div class="section s-followup">
+      <div class="section-header"><div class="section-stripe"></div><span class="section-label">Follow Up Needed</span><span class="section-count" id="count-followup">0</span><button class="sort-due-btn" id="sort-followup" onclick="toggleSort('followup',this)">Sort by due</button></div>
+      <div class="action-list" id="list-followup"><div class="empty-section">Nothing here</div></div>
+    </div>
+    <div class="section s-questions">
+      <div class="section-header"><div class="section-stripe"></div><span class="section-label">Open Questions</span><span class="section-count" id="count-questions">0</span></div>
+      <div class="action-list" id="list-questions"><div class="empty-section">Nothing here</div></div>
     </div>
   </div>
 
-  <div id="carried-section" style="display:none">
-    <div class="section-label">Carried forward</div>
-    <div class="action-list" id="carried-list"></div>
+  <div class="tab-panel" id="tab-completed">
+    <div class="completed-list" id="completed-list">
+      <div class="completed-empty"><strong>Nothing completed yet</strong>Check off items in the Active tab and they'll appear here</div>
+    </div>
   </div>
-
-  <div class="section-label">Today</div>
-  <div class="action-list" id="today-list"></div>
-
-  <div class="add-row">
-    <input
-      class="add-input"
-      id="add-input"
-      type="text"
-      placeholder="Add something that just came up..."
-      onkeydown="if(event.key==='Enter')addManual()"
-    >
-    <select class="priority-select" id="add-priority">
-      <option value="1">P1 urgent</option>
-      <option value="2" selected>P2 today</option>
-      <option value="3">P3 later</option>
-    </select>
-    <button class="add-btn" onclick="addManual()">+ Add</button>
-  </div>
-
 </div>
 
-<!-- EOD Modal -->
 <div class="overlay" id="overlay" onclick="if(event.target===this)closeEOD()">
   <div class="modal">
     <div class="modal-header">
@@ -615,231 +279,339 @@
 </div>
 
 <script>
-const STORE = 'checkin-v3';
-let state = { actions: [], counter: 0, lastDate: '' };
+const STORE = 'checkin-v5';
+const SECTIONS = [
+  { id: 'urgent',    label: 'Urgent' },
+  { id: 'high',      label: 'High Priority' },
+  { id: 'medium',    label: 'Medium Priority' },
+  { id: 'watch',     label: 'Strategic Watch' },
+  { id: 'strategic', label: 'Strategic / Ongoing' },
+  { id: 'followup',  label: 'Follow Up Needed' },
+  { id: 'questions', label: 'Open Questions' },
+];
+
+let state = { actions: [], completed: [], counter: 0, lastDate: '' };
 let eodChoices = {};
+let sortByDue = {}; // { sectionId: true/false }
+let dragSrcId = null;
 
+// ── PERSIST ──────────────────────────────────────────────────────────────────
 function load() {
-  try {
-    const raw = localStorage.getItem(STORE);
-    if (raw) state = JSON.parse(raw);
-  } catch(e) {}
-  rolloverCheck();
-  render();
+  try { const r = localStorage.getItem(STORE); if (r) state = JSON.parse(r); } catch(e) {}
+  rollover(); render();
 }
-
-function save() {
-  localStorage.setItem(STORE, JSON.stringify(state));
-}
-
-function todayStr() {
-  return new Date().toDateString();
-}
-
-function rolloverCheck() {
+function save() { localStorage.setItem(STORE, JSON.stringify(state)); }
+function todayStr() { return new Date().toDateString(); }
+function rollover() {
   const today = todayStr();
   if (state.lastDate && state.lastDate !== today) {
-    // New day: drop done items, mark remaining as carried
-    state.actions = state.actions
-      .filter(a => !a.done)
-      .map(a => ({ ...a, carried: true }));
+    state.actions = state.actions.filter(a => !a.done).map(a => ({ ...a, carried: true }));
+    state.completed = [];
   }
   state.lastDate = today;
   save();
 }
 
-// Parse pasted list — no AI, just smart line detection
+// ── IMPORT ───────────────────────────────────────────────────────────────────
 function importList() {
   const raw = document.getElementById('import-textarea').value.trim();
   if (!raw) return;
+  const lines = raw.split('\n');
+  let currentSection = 'high', currentGroup = null, inCompleted = false, inHLEFlags = false;
+  state.actions = state.actions.filter(a => a.manual);
+  state.completed = state.completed.filter(a => a.manual);
 
-  const lines = raw.split('\n')
-    .map(l => l
-      .replace(/^[\s\-\*\u2022\u2013\u2014\d]+[\.\)]\s*/, '') // strip bullets, numbers
-      .replace(/^\[.\]\s*/, '')   // strip [ ] or [x]
-      .replace(/^#+\s*/, '')      // strip markdown headers
-      .trim()
-    )
-    .filter(l => l.length > 2);
+  for (let i = 0; i < lines.length; i++) {
+    const raw_line = lines[i];
+    const line = raw_line.trim();
+    if (!line) { currentGroup = null; continue; }
 
-  lines.forEach(line => {
-    let priority = 2;
-    let source = '';
+    if (/urgent/i.test(line) && isHeader(line)) { currentSection='urgent'; inCompleted=false; inHLEFlags=false; currentGroup=null; continue; }
+    if (/high priority/i.test(line) && isHeader(line)) { currentSection='high'; inCompleted=false; inHLEFlags=false; currentGroup=null; continue; }
+    if (/medium priority/i.test(line) && isHeader(line)) { currentSection='medium'; inCompleted=false; inHLEFlags=false; currentGroup=null; continue; }
+    if (/strategic watch/i.test(line) && isHeader(line)) { currentSection='watch'; inCompleted=false; inHLEFlags=false; currentGroup=null; continue; }
+    if ((/strategic.*ongoing/i.test(line)||/ongoing/i.test(line)) && isHeader(line)) { currentSection='strategic'; inCompleted=false; inHLEFlags=false; currentGroup=null; continue; }
+    if (/follow.?up needed/i.test(line) && isHeader(line)) { currentSection='followup'; inCompleted=false; inHLEFlags=false; currentGroup=null; continue; }
+    if (/open questions/i.test(line) && isHeader(line)) { currentSection='questions'; inCompleted=false; inHLEFlags=false; currentGroup=null; continue; }
+    if (/recently completed/i.test(line) && isHeader(line)) { inCompleted=true; inHLEFlags=false; currentGroup=null; continue; }
+    if (/hle flags/i.test(line) && isHeader(line)) { inHLEFlags=true; inCompleted=false; currentGroup=null; continue; }
+    if (/^[─━=\-]{3,}$/.test(line)||/^last updated:/i.test(line)||/^🗂️/.test(line)) continue;
 
-    // Priority detection
-    if (/\b(urgent|asap|blocker|p1|critical|today|immediately|right away|fire)\b/i.test(line)) priority = 1;
-    else if (/\b(p3|later|someday|eventually|low priority|nice to have|backlog)\b/i.test(line)) priority = 3;
+    let text = line.replace(/^[✅🟥🟠🟡🟢🔵⚠️📋❓•\-\*]+\s*/,'').replace(/^\[.\]\s*/,'').replace(/^#+\s*/,'').trim();
+    if (!text || text.length < 2) continue;
 
-    // Source detection — look for common prefixes like "Slack:", "Email:", "Fuse -"
-    const sourceMatch = line.match(/^(slack|email|calendar|granola|clickup|notion|pipeline|fuse|forge|knock|tcr|fmg|lucas|craig|ali|lam|brandon|michelle|rose)\s*[:\-–]\s*/i);
-    if (sourceMatch) {
-      source = sourceMatch[1];
-      line = line.slice(sourceMatch[0].length).trim();
+    // Detect due date in text like "(due: 2026-04-25)" or "due Apr 25"
+    let dueDate = null;
+    const dueParen = text.match(/\(due[:\s]+([0-9]{4}-[0-9]{2}-[0-9]{2})\)/i);
+    if (dueParen) { dueDate = dueParen[1]; text = text.replace(dueParen[0], '').trim(); }
+
+    if (currentSection === 'questions' && /^[A-Z].*:$/.test(text) && !raw_line.match(/^[\s\-\*•]/)) {
+      currentGroup = text.replace(/:$/, ''); continue;
     }
+    text = text.replace(/\s*[—–-]\s*(Liz|liz|TBD|tbd|owner tbd|leadership|tbc).*$/i,'').trim();
+    if (!text) continue;
 
-    if (line.length > 1) addAction(line, priority, source, false);
-  });
-
+    if (inCompleted) {
+      state.completed.push({ id: ++state.counter, text, section: 'completed', group: null, manual: false });
+    } else {
+      state.actions.push({ id: ++state.counter, text, section: currentSection, group: inHLEFlags ? 'HLE Flags' : currentGroup, done: false, carried: false, manual: false, dueDate, order: state.counter });
+    }
+  }
   document.getElementById('import-textarea').value = '';
+  save(); render();
+}
+
+function isHeader(line) {
+  return /[🟥🟠🟡🟢🔵⚠️📋❓✅🗂️]/.test(line) || /^#+\s/.test(line) || line === line.toUpperCase();
+}
+
+// ── ADD MANUAL ───────────────────────────────────────────────────────────────
+function addManual() {
+  const inp = document.getElementById('add-input');
+  const section = document.getElementById('add-priority').value;
+  const dueDate = document.getElementById('add-date').value || null;
+  const text = inp.value.trim();
+  if (!text) return;
+  state.actions.push({ id: ++state.counter, text, section, group: null, done: false, carried: false, manual: true, dueDate, order: state.counter });
+  save(); render();
+  inp.value = ''; document.getElementById('add-date').value = '';
+}
+
+// ── DUE DATE ─────────────────────────────────────────────────────────────────
+function setDue(id, val) {
+  const a = state.actions.find(x => x.id === id);
+  if (a) { a.dueDate = val || null; save(); render(); }
+}
+
+function dueBadgeHTML(dueDate) {
+  if (!dueDate) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = new Date(dueDate + 'T00:00:00');
+  const diff = Math.round((due - today) / 86400000);
+  let cls = 'due-future', label = '';
+  if (diff < 0) { cls = 'due-overdue'; label = `overdue ${Math.abs(diff)}d`; }
+  else if (diff === 0) { cls = 'due-today'; label = 'due today'; }
+  else if (diff === 1) { cls = 'due-today'; label = 'due tomorrow'; }
+  else { label = `due ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`; }
+  return `<span class="due-badge ${cls}">${label}</span>`;
+}
+
+// ── SORT BY DUE ───────────────────────────────────────────────────────────────
+function toggleSort(sectionId, btn) {
+  sortByDue[sectionId] = !sortByDue[sectionId];
+  btn.classList.toggle('active', sortByDue[sectionId]);
   render();
 }
 
-function addAction(text, priority, source, rerender) {
-  if (!text.trim()) return;
-  state.actions.push({
-    id: ++state.counter,
-    text: text.trim(),
-    priority: parseInt(priority),
-    source: source || '',
-    done: false,
-    carried: false
-  });
-  save();
-  if (rerender !== false) render();
-}
-
-function addManual() {
-  const inp = document.getElementById('add-input');
-  const pri = document.getElementById('add-priority').value;
-  addAction(inp.value, pri, 'manual');
-  inp.value = '';
-}
-
+// ── DONE ─────────────────────────────────────────────────────────────────────
 function toggleDone(id) {
-  const a = state.actions.find(x => x.id === id);
-  if (a) { a.done = !a.done; save(); render(); }
-}
-
-function cyclePriority(id) {
-  const a = state.actions.find(x => x.id === id);
-  if (a) { a.priority = a.priority === 3 ? 1 : a.priority + 1; save(); render(); }
+  const idx = state.actions.findIndex(a => a.id === id);
+  if (idx === -1) return;
+  const a = state.actions[idx];
+  a.done = true;
+  state.completed.unshift({ id: a.id, text: a.text, section: a.section, completedAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) });
+  state.actions.splice(idx, 1);
+  save(); render();
 }
 
 function deleteAction(id) {
-  state.actions = state.actions.filter(x => x.id !== id);
-  save();
-  render();
+  state.actions = state.actions.filter(a => a.id !== id);
+  save(); render();
 }
 
-function esc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ── DRAG AND DROP ─────────────────────────────────────────────────────────────
+function onDragStart(e, id) {
+  dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.classList.add('dragging');
+}
+function onDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+function onDragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  if (id !== dragSrcId) e.currentTarget.classList.add('drag-over');
+}
+function onDrop(e, targetId) {
+  e.preventDefault();
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  if (dragSrcId === null || dragSrcId === targetId) return;
+
+  const srcIdx = state.actions.findIndex(a => a.id === dragSrcId);
+  const tgtIdx = state.actions.findIndex(a => a.id === targetId);
+  if (srcIdx === -1 || tgtIdx === -1) return;
+
+  // Move src to just before target
+  const [moved] = state.actions.splice(srcIdx, 1);
+  const newTgtIdx = state.actions.findIndex(a => a.id === targetId);
+  state.actions.splice(newTgtIdx, 0, moved);
+
+  // Update order field to reflect new position within section
+  let sectionOrder = 0;
+  state.actions.forEach(a => { if (a.section === moved.section) a.order = sectionOrder++; });
+
+  dragSrcId = null;
+  save(); render();
 }
 
-function renderList(el, items) {
-  if (!items.length) { el.innerHTML = ''; return; }
-  const sorted = [...items].sort((a, b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1;
-    return a.priority - b.priority;
-  });
-  el.innerHTML = sorted.map(a => `
-    <div class="action-item p${a.priority}${a.done ? ' done' : ''}${a.carried ? ' carried' : ''}">
-      <div class="check-wrap${a.done ? ' checked' : ''}" onclick="toggleDone(${a.id})">
-        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-          <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="action-content">
-        <div class="action-text">${esc(a.text)}</div>
-        <div class="action-meta">
-          ${a.source && a.source !== 'manual' ? `<span class="meta-source">${esc(a.source)}</span>` : ''}
-          ${a.carried ? '<span class="carried-tag">carried forward</span>' : ''}
-        </div>
-      </div>
-      <div class="action-right">
-        <button class="pip p${a.priority}" onclick="cyclePriority(${a.id})" title="Click to change priority">P${a.priority}</button>
-        <button class="del-btn" onclick="deleteAction(${a.id})">×</button>
-      </div>
-    </div>
-  `).join('');
-}
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function render() {
-  document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric'
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  document.getElementById('stat-total').textContent = state.actions.length;
+  document.getElementById('stat-done').textContent  = state.completed.length;
+
+  SECTIONS.forEach(sec => {
+    let items = state.actions.filter(a => a.section === sec.id);
+    document.getElementById('count-' + sec.id).textContent = items.length;
+    const listEl = document.getElementById('list-' + sec.id);
+
+    if (!items.length) { listEl.innerHTML = `<div class="empty-section">Nothing here</div>`; return; }
+
+    // Sort by due if toggled, else preserve drag order
+    if (sortByDue[sec.id]) {
+      items = [...items].sort((a, b) => {
+        if (!a.dueDate && !b.dueDate) return 0;
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return a.dueDate.localeCompare(b.dueDate);
+      });
+    }
+
+    if (sec.id === 'questions') {
+      renderGrouped(listEl, items);
+    } else {
+      listEl.innerHTML = items.map(a => itemHTML(a)).join('');
+      attachDragListeners(listEl);
+    }
   });
 
-  const carried = state.actions.filter(a => a.carried);
-  const today   = state.actions.filter(a => !a.carried);
-
-  // Carried section
-  const carriedSection = document.getElementById('carried-section');
-  carriedSection.style.display = carried.length ? 'block' : 'none';
-  renderList(document.getElementById('carried-list'), carried);
-
-  // Today section
-  const todayEl = document.getElementById('today-list');
-  if (today.length === 0) {
-    todayEl.innerHTML = `
-      <div class="empty-list">
-        <strong>Nothing here yet</strong>
-        Paste your Claude output above to populate your day
-      </div>`;
-  } else {
-    renderList(todayEl, today);
-  }
-
-  // Stats
-  const total = state.actions.length;
-  const done  = state.actions.filter(a => a.done).length;
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-done').textContent  = done;
+  renderCompleted();
 }
 
-// EOD
+function attachDragListeners(listEl) {
+  listEl.querySelectorAll('.action-item[data-id]').forEach(el => {
+    const id = parseInt(el.dataset.id);
+    el.addEventListener('dragstart', e => onDragStart(e, id));
+    el.addEventListener('dragend',   e => onDragEnd(e));
+    el.addEventListener('dragover',  e => onDragOver(e, id));
+    el.addEventListener('drop',      e => onDrop(e, id));
+  });
+}
+
+function itemHTML(a) {
+  return `<div class="action-item${a.carried ? ' carried' : ''}" data-id="${a.id}" draggable="true">
+    <div class="drag-handle" title="Drag to reorder">
+      <svg width="10" height="14" viewBox="0 0 10 14" fill="none">
+        <circle cx="3" cy="3" r="1.2" fill="currentColor"/>
+        <circle cx="7" cy="3" r="1.2" fill="currentColor"/>
+        <circle cx="3" cy="7" r="1.2" fill="currentColor"/>
+        <circle cx="7" cy="7" r="1.2" fill="currentColor"/>
+        <circle cx="3" cy="11" r="1.2" fill="currentColor"/>
+        <circle cx="7" cy="11" r="1.2" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="check-wrap" onclick="toggleDone(${a.id})">
+      <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="action-content">
+      <div class="action-text">${esc(a.text)}</div>
+      <div class="action-meta">
+        ${a.dueDate ? dueBadgeHTML(a.dueDate) : ''}
+        ${a.manual ? '<span class="meta-source">manual</span>' : ''}
+        ${a.carried ? '<span class="carried-tag">carried forward</span>' : ''}
+      </div>
+    </div>
+    <div class="action-right">
+      <input class="date-edit" type="date" value="${a.dueDate || ''}" onchange="setDue(${a.id}, this.value)" title="Set due date">
+      <button class="del-btn" onclick="deleteAction(${a.id})">×</button>
+    </div>
+  </div>`;
+}
+
+function renderGrouped(el, items) {
+  const grouped = {}, ungrouped = [];
+  items.forEach(a => { if (a.group) { if (!grouped[a.group]) grouped[a.group]=[]; grouped[a.group].push(a); } else ungrouped.push(a); });
+  let html = ungrouped.map(a => itemHTML(a)).join('');
+  Object.entries(grouped).forEach(([group, groupItems]) => {
+    html += `<div class="question-group"><div class="group-label">${esc(group)}</div><div class="group-items">${groupItems.map(a => itemHTML(a)).join('')}</div></div>`;
+  });
+  el.innerHTML = html;
+  attachDragListeners(el);
+}
+
+function renderCompleted() {
+  const el = document.getElementById('completed-list');
+  if (!state.completed.length) { el.innerHTML = `<div class="completed-empty"><strong>Nothing completed yet</strong>Check off items in the Active tab and they'll appear here</div>`; return; }
+  el.innerHTML = state.completed.map(a => `<div class="completed-item"><div class="completed-text">${esc(a.text)}</div>${a.completedAt ? `<div class="completed-meta">completed ${a.completedAt}</div>` : ''}</div>`).join('');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── EOD ───────────────────────────────────────────────────────────────────────
 function openEOD() {
-  const unfinished = state.actions.filter(a => !a.done);
   eodChoices = {};
   const container = document.getElementById('eod-items');
-  const allDone   = document.getElementById('eod-all-done');
-
-  if (!unfinished.length) {
-    container.innerHTML = '';
-    allDone.style.display = 'block';
-  } else {
-    allDone.style.display = 'none';
-    container.innerHTML = unfinished.map(a => `
-      <div class="eod-item">
-        <span class="eod-item-text">${esc(a.text)}</span>
-        <div class="choice-wrap">
-          <button class="choice-btn choice-carry" id="carry-${a.id}" onclick="setChoice(${a.id},'carry')">Carry →</button>
-          <button class="choice-btn choice-drop"  id="drop-${a.id}"  onclick="setChoice(${a.id},'drop')">Drop</button>
-        </div>
-      </div>
-    `).join('');
-    // Default all to carry
-    unfinished.forEach(a => setChoice(a.id, 'carry'));
+  const allDone = document.getElementById('eod-all-done');
+  if (!state.actions.length) { container.innerHTML=''; allDone.style.display='block'; }
+  else {
+    allDone.style.display='none';
+    container.innerHTML = state.actions.map(a => `<div class="eod-item"><span class="eod-item-text">${esc(a.text)}</span><div class="choice-wrap"><button class="choice-btn choice-carry" id="carry-${a.id}" onclick="setChoice(${a.id},'carry')">Carry →</button><button class="choice-btn choice-drop" id="drop-${a.id}" onclick="setChoice(${a.id},'drop')">Drop</button></div></div>`).join('');
+    state.actions.forEach(a => setChoice(a.id, 'carry'));
   }
-
   document.getElementById('overlay').classList.add('open');
 }
-
 function setChoice(id, choice) {
   eodChoices[id] = choice;
-  const c = document.getElementById('carry-' + id);
-  const d = document.getElementById('drop-' + id);
-  if (c) c.className = 'choice-btn choice-carry' + (choice === 'carry' ? ' active' : '');
-  if (d) d.className = 'choice-btn choice-drop'  + (choice === 'drop'  ? ' active' : '');
+  const c = document.getElementById('carry-'+id), d = document.getElementById('drop-'+id);
+  if (c) c.className = 'choice-btn choice-carry' + (choice==='carry'?' active':'');
+  if (d) d.className = 'choice-btn choice-drop'  + (choice==='drop' ?' active':'');
 }
-
 function confirmEOD() {
   Object.entries(eodChoices).forEach(([id, choice]) => {
     const numId = parseInt(id);
-    if (choice === 'drop') {
-      state.actions = state.actions.filter(a => a.id !== numId);
-    } else {
-      const a = state.actions.find(x => x.id === numId);
-      if (a) { a.carried = true; }
-    }
+    if (choice === 'drop') state.actions = state.actions.filter(a => a.id !== numId);
+    else { const a = state.actions.find(x => x.id === numId); if (a) a.carried = true; }
   });
-  // Clear done items that weren't explicitly carried
-  state.actions = state.actions.filter(a => !a.done || a.carried);
-  save();
-  closeEOD();
-  render();
+  state.completed = [];
+  save(); closeEOD(); render();
 }
+function closeEOD() { document.getElementById('overlay').classList.remove('open'); }
 
-function closeEOD() {
-  document.getElementById('overlay').classList.remove('open');
+// ── COPY LIST ─────────────────────────────────────────────────────────────────
+function copyList() {
+  const emoji = { urgent:'🟥 URGENT', high:'🟠 HIGH PRIORITY', medium:'🟡 MEDIUM PRIORITY', watch:'🔵 STRATEGIC WATCH', strategic:'🟢 STRATEGIC / ONGOING', followup:'📋 FOLLOW UP NEEDED', questions:'❓ OPEN QUESTIONS' };
+  let out = `🗂️ MASTER ACTION LIST — Liz / AR @ FMG Suite\nLast updated: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}\n\n`;
+  SECTIONS.forEach(sec => {
+    const items = state.actions.filter(a => a.section === sec.id);
+    if (!items.length) return;
+    out += emoji[sec.id] + '\n\n';
+    if (sec.id === 'questions') {
+      items.filter(a => !a.group).forEach(a => { out += `- ${a.text}${a.dueDate?' (due: '+a.dueDate+')':''}${a.carried?' [carried]':''}\n`; });
+      const groups = {};
+      items.filter(a => a.group).forEach(a => { if (!groups[a.group]) groups[a.group]=[]; groups[a.group].push(a); });
+      Object.entries(groups).forEach(([g, gi]) => { out += `\n${g}:\n`; gi.forEach(a => { out += `- ${a.text}\n`; }); });
+    } else {
+      items.forEach(a => { out += `- ${a.text}${a.dueDate?' (due: '+a.dueDate+')':''}${a.carried?' [carried]':''}\n`; });
+    }
+    out += '\n';
+  });
+  if (state.completed.length) { out += '✅ RECENTLY COMPLETED\n\n'; state.completed.forEach(a => { out += `- ${a.text}\n`; }); }
+  navigator.clipboard.writeText(out.trim()).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied ✓'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green)';
+    setTimeout(() => { btn.textContent='Copy list'; btn.style.color=''; btn.style.borderColor=''; }, 2000);
+  });
 }
 
 load();
